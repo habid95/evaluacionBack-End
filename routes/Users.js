@@ -1,30 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const User = require("../database/models/user");
+const User = require("../database/models/usuarios");
 
-
-
-//create
-router.post('/', (req, res) => {
-    User.create({
-        username: req.body.username,
-        correo: req.body.correo,
-        telefono: req.body.telefono,
-        contrasena: req.body.contrasena
-    }).then(user => {
-        res.json(user);
-    });
-
-
-
-});
 
 //Validar usuario
 router.get('/:user/:pass', (req, res) => {
     User.findOne({
         where: {
             username: req.params.user,
-            contrasena: req.params.pass
+            password: req.params.pass
         }
     }).then(result => {
         res.json(result);
@@ -32,29 +16,47 @@ router.get('/:user/:pass', (req, res) => {
 });
 
 
-//read one
-router.get('/:id', (req, res) => {
-    User.findByPk(req.params.id).then(user => {
-        res.json(user);
-    })
-});
-
-//read all
-router.get('/', (req, res) => {
+router.get('/', (req, ress) => {
     User.findAll().then(users => {
-        res.json(users)
+        console.log("All users:", JSON.stringify(users));
+        let res = JSON.stringify(users)
+        ress.json(JSON.parse(res));
     });
-
-    // res.json('hola');
 });
 
-// //update
+router.get('/:id', (req, ress) => {
+    User.findByPk(req.params.id).then(user => {
+        ress.json(user);
+    })
+})
+
+router.post('/', (req, ress) => {
+    console.log(req.body.password);
+    User.create({
+        username: req.body.username,
+        password: req.body.password,
+        perfil_id: 1,
+        correo: req.body.correo,
+        telefono: req.body.telefono,
+        // estatus: req.body.estatus,
+        fecha_creacion: new Date(),
+    }).then(user => {
+            ress.json(user);
+        },
+        err => {
+            ress.json(err);
+        });
+})
+
+
 router.patch('/:id', (req, res) => {
+
+    res.json(req.params.id);
     User.update({
         username: req.body.username,
         correo: req.body.correo,
         telefono: req.body.telefono,
-        contrasena: req.body.contrasena
+        fecha_actualizacion: new Date(),
     }, {
         where: {
             id: req.params.id
@@ -74,5 +76,6 @@ router.delete('/:id', (req, res) => {
         res.json(result);
     });
 });
+
 
 module.exports = router;
